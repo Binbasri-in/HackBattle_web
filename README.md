@@ -1,3 +1,5 @@
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/H2H5VAL6E)
+
 # HackBattle_web
 
 This is my try for HackBattle: Mobile vs Web hosted by MLH.
@@ -16,4 +18,4 @@ collection points will post them as tasks that can be done by the local users. t
 
 Deployed on pythonanywhere
 
-Visit [http://binbasri101.pythonanywhere.com/](http://binbasri101.pythonanywhere.com/)
+Visit [http://binbasri10.pythonanywhere.com/](http://binbasri10.pythonanywhere.com/)
