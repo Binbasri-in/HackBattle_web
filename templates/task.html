@@ -20,10 +20,17 @@
                                 {{ task.description }}
 							</p>
 							<p>
-								<form action="/task/{{ task.id }}" method="post">
+								{% if is_not_added %}
+								<form id="add-task" action="/tasks/{{ task.id }}" method="post">
                                     <!--  a button to add the task to profile-->
-                                    <button type="submit" class="btn btn-primary" name="add_task" value="add_task">Add to profile</button>
+                                    <button type="button" class="btn btn-primary" name="add_task" value="add_task" onclick="addTask()">Add to profile</button>
                                 </form>
+								{% else %}
+								<form id="mark-completed" action="/tasks/{{ task.id }}/completed" method="post">
+									<!--  a button to mark the task as completed-->
+									<button type="submit" class="btn btn-primary" name="mark_completed" value="mark_completed">Mark as completed</button>
+								</form>
+								{% endif %}
                                 <p>{{ task.points }}</p>
 							</p>
 						</div>
@@ -33,4 +40,12 @@
 		</div>
 	</div>
 </div>
+{% endblock %}
+
+{% block javascript %}
+<script>
+	function addTask() {
+		document.getElementById("add-task").submit();
+	}
+</script>
 {% endblock %}

@@ -6,6 +6,7 @@ from werkzeug.exceptions import default_exceptions, HTTPException, InternalServe
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from helpers import apology, user_login_required, collector_login_required
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -250,22 +251,49 @@ def task(task_id):
     """Show task"""
     if request.method == "GET":
         # get task
-        task = db.execute("SELECT * FROM tasks WHERE id = ?;", task_id)[0]
+        task = db.execute("SELECT * FROM tasks WHERE id = ?;", task_id)
+        print(task)
+        task = task[0]
 
+        # check if the task is already added to current tasks of the user
+        ids = db.execute("SELECT * FROM current_tasks WHERE user_id = ? AND task_id = ?;", session["user_id"], task_id)
+        print(ids)
+        if ids:
+            is_not_added = False
+        else:
+            is_not_added = True
+            
         # render the task page
-        return render_template("task.html", task=task)
+        return render_template("task.html", task=task, is_not_added=is_not_added)
     else:
         # add the task to current tasks of the user if it is not already in
         if not db.execute("SELECT * FROM current_tasks WHERE user_id = ? AND task_id = ?;", session["user_id"], task_id):
             db.execute("INSERT INTO current_tasks (user_id, task_id) VALUES (?, ?);", session["user_id"], task_id)
+        
+        flash("Task added!")
 
         return redirect("/tasks")
     
 
+@app.route("/tasks/<int:task_id>/completed", methods=["POST"])
+@user_login_required
+def complete_task(task_id):
+    """Complete task"""
+    # add the task to completed tasks of the user
+    db.execute("INSERT INTO task_completions (user_id, task_id, completion_date) VALUES (?, ?, ?);", session["user_id"], task_id, datetime.now())
+    db.execute("DELETE FROM current_tasks WHERE user_id = ? AND task_id = ?;", session["user_id"], task_id)
+
+    # increase the points of the user
+    db.execute("UPDATE users SET points = points + ? WHERE id = ?;", db.execute("SELECT points FROM tasks WHERE id = ?;", task_id)[0]["points"], session["user_id"])
+    
+    return redirect("/profile")    
+
+    
 @app.route("/redeem", methods=["GET", "POST"])
 @user_login_required
 def redeem():
     return render_template("redeem.html")
+
 
 @app.route("/collector/profile", methods=["GET", "POST"])
 @collector_login_required
